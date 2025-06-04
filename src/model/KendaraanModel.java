@@ -4,7 +4,6 @@ import java.sql.*;
 import java.util.*;
 
 public class KendaraanModel {
-
     public List<Object[]> getKendaraanByUser(int userId) throws SQLException {
         List<Object[]> list = new ArrayList<>();
         try (Connection conn = KoneksidB.getKoneksi();
@@ -18,7 +17,7 @@ public class KendaraanModel {
                         rs.getString("merk"),
                         rs.getString("jenis"),
                         rs.getInt("tahun"),
-                        rs.getDouble("harga_kendaraan"), // Sesuai dengan nama kolom di database
+                        rs.getDouble("harga_kendaraan"),
                         rs.getString("cc")
                     };
                     System.out.println("Retrieved row for userId " + userId + ": " + Arrays.toString(row));
@@ -32,23 +31,68 @@ public class KendaraanModel {
         return list;
     }
 
-    public Object[] getKendaraanById(int kendaraanId, int userId) throws SQLException {
+    public List<Object[]> getAllKendaraan() throws SQLException {
+        List<Object[]> list = new ArrayList<>();
+        try (Connection conn = KoneksidB.getKoneksi();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM kendaraan")) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Object[] row = new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("nomor_polisi"),
+                        rs.getString("merk"),
+                        rs.getString("jenis"),
+                        rs.getInt("tahun"),
+                        rs.getDouble("harga_kendaraan"),
+                        rs.getString("cc")
+                    };
+                    System.out.println("Retrieved row: " + Arrays.toString(row));
+                    list.add(row);
+                }
+            }
+        }
+        if (list.isEmpty()) {
+            System.out.println("No kendaraan data found in database at " + new java.util.Date());
+        }
+        return list;
+    }
+
+    public Object[] getKendaraanById(int kendaraanId) throws SQLException {
+        try (Connection conn = KoneksidB.getKoneksi();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM kendaraan WHERE id = ?")) {
+            pstmt.setInt(1, kendaraanId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Object[]{
+                        rs.getString("nomor_polisi"),
+                        rs.getString("merk"),
+                        rs.getString("jenis"),
+                        rs.getInt("tahun"),
+                        rs.getDouble("harga_kendaraan"),
+                        rs.getString("cc")
+                    };
+                }
+            }
+        }
+        System.out.println("No data found for kendaraanId: " + kendaraanId + " at " + new java.util.Date());
+        return null;
+    }
+
+    public Object[] getKendaraanByIdAndUser(int kendaraanId, int userId) throws SQLException {
         try (Connection conn = KoneksidB.getKoneksi();
              PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM kendaraan WHERE id = ? AND user_id = ?")) {
             pstmt.setInt(1, kendaraanId);
             pstmt.setInt(2, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    Object[] data = new Object[]{
+                    return new Object[]{
                         rs.getString("nomor_polisi"),
                         rs.getString("merk"),
                         rs.getString("jenis"),
                         rs.getInt("tahun"),
-                        rs.getDouble("harga_kendaraan"), // Sesuai dengan nama kolom di database
+                        rs.getDouble("harga_kendaraan"),
                         rs.getString("cc")
                     };
-                    System.out.println("Retrieved detail for kendaraanId " + kendaraanId + ": " + Arrays.toString(data));
-                    return data;
                 }
             }
         }
@@ -56,9 +100,26 @@ public class KendaraanModel {
         return null;
     }
 
+    public boolean updateKendaraan(int kendaraanId, String nomorPolisi, String merk, String jenis, int tahun, double harga, String cc) throws SQLException {
+        try (Connection conn = KoneksidB.getKoneksi();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "UPDATE kendaraan SET nomor_polisi = ?, merk = ?, jenis = ?, tahun = ?, harga_kendaraan = ?, cc = ? WHERE id = ?")) {
+            pstmt.setString(1, nomorPolisi);
+            pstmt.setString(2, merk);
+            pstmt.setString(3, jenis);
+            pstmt.setInt(4, tahun);
+            pstmt.setDouble(5, harga);
+            pstmt.setString(6, cc);
+            pstmt.setInt(7, kendaraanId);
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        }
+    }
+
     public boolean updateKendaraan(int kendaraanId, int userId, String nomorPolisi, String merk, String jenis, int tahun, double harga, String cc) throws SQLException {
         try (Connection conn = KoneksidB.getKoneksi();
-             PreparedStatement pstmt = conn.prepareStatement("UPDATE kendaraan SET nomor_polisi=?, merk=?, jenis=?, tahun=?, harga_kendaraan=?, cc=? WHERE id=? AND user_id=?")) {
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "UPDATE kendaraan SET nomor_polisi = ?, merk = ?, jenis = ?, tahun = ?, harga_kendaraan = ?, cc = ? WHERE id = ? AND user_id = ?")) {
             pstmt.setString(1, nomorPolisi);
             pstmt.setString(2, merk);
             pstmt.setString(3, jenis);
@@ -67,7 +128,6 @@ public class KendaraanModel {
             pstmt.setString(6, cc);
             pstmt.setInt(7, kendaraanId);
             pstmt.setInt(8, userId);
-
             int result = pstmt.executeUpdate();
             return result > 0;
         }
@@ -78,6 +138,15 @@ public class KendaraanModel {
              PreparedStatement pstmt = conn.prepareStatement("DELETE FROM kendaraan WHERE id = ? AND user_id = ?")) {
             pstmt.setInt(1, kendaraanId);
             pstmt.setInt(2, userId);
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        }
+    }
+
+    public boolean deleteKendaraanAdmin(int kendaraanId) throws SQLException {
+        try (Connection conn = KoneksidB.getKoneksi();
+             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM kendaraan WHERE id = ?")) {
+            pstmt.setInt(1, kendaraanId);
             int result = pstmt.executeUpdate();
             return result > 0;
         }

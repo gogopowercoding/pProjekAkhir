@@ -13,7 +13,12 @@ public class KendaraanController {
 
     public List<Object[]> getAllKendaraan(int userId) throws SQLException {
         try {
-            List<Object[]> kendaraanList = model.getKendaraanByUser(userId);
+            List<Object[]> kendaraanList;
+            if (userId == 1) { // Admin (userId = 1) dapat melihat semua kendaraan
+                kendaraanList = model.getAllKendaraan();
+            } else {
+                kendaraanList = model.getKendaraanByUser(userId);
+            }
             if (kendaraanList.isEmpty()) {
                 System.out.println("No kendaraan data found for userId: " + userId + " at " + new java.util.Date());
             } else {
@@ -28,11 +33,16 @@ public class KendaraanController {
 
     public Object[] getKendaraanDetail(int kendaraanId, int userId) throws SQLException {
         try {
-            Object[] kendaraan = model.getKendaraanById(kendaraanId, userId);
+            Object[] kendaraan;
+            if (userId == 1) { // Admin (userId = 1) dapat mengakses semua kendaraan
+                kendaraan = model.getKendaraanById(kendaraanId);
+            } else {
+                kendaraan = model.getKendaraanByIdAndUser(kendaraanId, userId);
+            }
             if (kendaraan == null) {
                 System.out.println("No kendaraan data found for kendaraanId: " + kendaraanId + ", userId: " + userId);
             } else {
-                System.out.println("Retrieved kendaraan detail for kendaraanId: " + kendaraanId + ", userId: " + userId);
+                System.out.println("Retrieved kendaraan detail for kendaraanId " + kendaraanId + ", userId: " + userId);
             }
             return kendaraan;
         } catch (SQLException e) {
@@ -43,7 +53,12 @@ public class KendaraanController {
 
     public boolean update(int kendaraanId, int userId, String nomorPolisi, String merk, String jenis, int tahun, double harga, String cc) throws SQLException {
         try {
-            boolean result = model.updateKendaraan(kendaraanId, userId, nomorPolisi, merk, jenis, tahun, harga, cc);
+            boolean result;
+            if (userId == 1) { // Admin dapat memperbarui semua kendaraan
+                result = model.updateKendaraan(kendaraanId, nomorPolisi, merk, jenis, tahun, harga, cc);
+            } else {
+                result = model.updateKendaraan(kendaraanId, userId, nomorPolisi, merk, jenis, tahun, harga, cc);
+            }
             System.out.println("Update result for kendaraanId " + kendaraanId + ": " + result);
             return result;
         } catch (SQLException e) {
@@ -52,14 +67,19 @@ public class KendaraanController {
         }
     }
 
-    public boolean delete(int kendaraanId, int userId) {
+    public boolean delete(int kendaraanId, int userId) throws SQLException {
         try {
-            boolean result = model.deleteKendaraan(kendaraanId, userId);
+            boolean result;
+            if (userId == 1) { // Admin dapat menghapus semua kendaraan
+                result = model.deleteKendaraanAdmin(kendaraanId);
+            } else {
+                result = model.deleteKendaraan(kendaraanId, userId);
+            }
             System.out.println("Delete result for kendaraanId " + kendaraanId + ": " + result);
             return result;
         } catch (SQLException e) {
             System.out.println("SQL Error in delete for kendaraanId " + kendaraanId + ": " + e.getMessage());
-            return false;
+            throw e;
         }
     }
 }
