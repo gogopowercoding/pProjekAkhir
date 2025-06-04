@@ -5,14 +5,14 @@ import java.sql.*;
 
 public class PajakDAO {
     public DefaultTableModel getAllPajak() {
-        String[] columns = {"Plat", "Merk", "Jatuh Tempo", "Status", "Total"};
+        String[] columns = {"NIK", "Plat", "Jatuh Tempo", "Status", "Total"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         try (Connection conn = KoneksidB.getKoneksi()) {
-            ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM pajak JOIN kendaraan ON pajak.kendaraan_id = kendaraan.id");
+            ResultSet rs = conn.createStatement().executeQuery("SELECT u.nik, k.nomor_polisi, p.jatuh_tempo, p.status, p.total_bayar FROM pajak  p JOIN kendaraan k ON p.kendaraan_id = k.id JOIN users u ON u.id = k.user_id ");
             while (rs.next()) {
                 model.addRow(new Object[]{
+                    rs.getString("nik"),
                     rs.getString("nomor_polisi"),
-                    rs.getString("merk"),
                     rs.getDate("jatuh_tempo"),
                     rs.getString("status"),
                     rs.getDouble("total_bayar")
@@ -24,19 +24,23 @@ public class PajakDAO {
         return model;
     }
 
+    /**
+     * @param status
+     * @return
+     */
     public DefaultTableModel getPajakByStatus(String status) {
         if (status.equals("SEMUA")) return getAllPajak();
 
-        String[] columns = {"Plat", "Merk", "Jatuh Tempo", "Status", "Total"};
+        String[] columns = {"NIK", "Plat", "Jatuh Tempo", "Status", "Total"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         try (Connection conn = KoneksidB.getKoneksi()) {
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM pajak JOIN kendaraan ON pajak.kendaraan_id = kendaraan.id WHERE status = ?");
+            PreparedStatement stmt = conn.prepareStatement("SELECT u.nik, k.nomor_polisi, p.jatuh_tempo, p.status, p.total_bayar FROM pajak  p JOIN kendaraan k ON p.kendaraan_id = k.id JOIN users u ON u.id = k.user_id WHERE status = ?");
             stmt.setString(1, status);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 model.addRow(new Object[]{
+                    rs.getString("nik"),
                     rs.getString("nomor_polisi"),
-                    rs.getString("merk"),
                     rs.getDate("jatuh_tempo"),
                     rs.getString("status"),
                     rs.getDouble("total_bayar")
