@@ -3,18 +3,31 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/KoneksidB.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/NotifikasiDAO.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/UserController.java</file>
             <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/UserView.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/app/SistemPajak.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/KendaraanController.java</file>
             <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/PajakDAO.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/RegisterView.java</file>
             <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/PajakController.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/AdminDashboard.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/User.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/EditKendaraanDetailForm.java</file>
             <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/hitung/PajakUtil.java</file>
-            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/NotifikasiController.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/BayarPajakController.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/KendaraanControllerTambah.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/UserController.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/PembayarDashboard.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/BayarPajakForm.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/BayarPajakModel.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/KendaraanModel.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/KendaraanDAO.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/RegisterView.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/KoneksidB.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/controller/RiwayatPembayaranController.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/EditKendaraanForm.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/RiwayatPembayaranModel.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/RiwayatPembayaranView.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/KendaraanTambah.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/AdminDashboard.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/view/TambahKendaraanForm.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/app/SistemPajak.java</file>
+            <file>file:/D:/KULIAH/SEMESTER%204/Praktikum%20PBO/projek_akhir/SistemPajak/src/model/User.java</file>
         </group>
     </open-files>
 </project-private>

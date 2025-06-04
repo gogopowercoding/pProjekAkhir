@@ -2,52 +2,73 @@ package model;
 
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import javax.swing.JOptionPane;
 
 public class PajakDAO {
     public DefaultTableModel getAllPajak() {
-        String[] columns = {"NIK", "Plat", "Jatuh Tempo", "Status", "Total"};
+        String[] columns = {"ID Kendaraan", "Nomor Polisi", "Merk", "Status"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         try (Connection conn = KoneksidB.getKoneksi()) {
-            ResultSet rs = conn.createStatement().executeQuery("SELECT u.nik, k.nomor_polisi, p.jatuh_tempo, p.status, p.total_bayar FROM pajak  p JOIN kendaraan k ON p.kendaraan_id = k.id JOIN users u ON u.id = k.user_id ");
+            String query = "SELECT k.id, k.nomor_polisi, k.merk, COALESCE(p.status, 'BELUM_BAYAR') AS status " +
+                          "FROM kendaraan k " +
+                          "LEFT JOIN pajak p ON k.id = p.kendaraan_id";
+            ResultSet rs = conn.createStatement().executeQuery(query);
             while (rs.next()) {
                 model.addRow(new Object[]{
-                    rs.getString("nik"),
+                    rs.getInt("id"),
                     rs.getString("nomor_polisi"),
-                    rs.getDate("jatuh_tempo"),
-                    rs.getString("status"),
-                    rs.getDouble("total_bayar")
+                    rs.getString("merk"),
+                    rs.getString("status")
                 });
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Gagal memuat data kendaraan: " + e.getMessage(), 
+                                        "Error", JOptionPane.ERROR_MESSAGE);
         }
         return model;
     }
 
-    /**
-     * @param status
-     * @return
-     */
     public DefaultTableModel getPajakByStatus(String status) {
-        if (status.equals("SEMUA")) return getAllPajak();
-
-        String[] columns = {"NIK", "Plat", "Jatuh Tempo", "Status", "Total"};
+        String[] columns = {"ID Kendaraan", "Nomor Polisi", "Merk", "Status"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         try (Connection conn = KoneksidB.getKoneksi()) {
-            PreparedStatement stmt = conn.prepareStatement("SELECT u.nik, k.nomor_polisi, p.jatuh_tempo, p.status, p.total_bayar FROM pajak  p JOIN kendaraan k ON p.kendaraan_id = k.id JOIN users u ON u.id = k.user_id WHERE status = ?");
-            stmt.setString(1, status);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getString("nik"),
-                    rs.getString("nomor_polisi"),
-                    rs.getDate("jatuh_tempo"),
-                    rs.getString("status"),
-                    rs.getDouble("total_bayar")
-                });
+            String query;
+            if (status.equals("SEMUA")) {
+                query = "SELECT k.id, k.nomor_polisi, k.merk, COALESCE(p.status, 'BELUM_BAYAR') AS status " +
+                        "FROM kendaraan k " +
+                        "LEFT JOIN pajak p ON k.id = p.kendaraan_id";
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("nomor_polisi"),
+                        rs.getString("merk"),
+                        rs.getString("status")
+                    });
+                }
+            } else {
+                query = "SELECT k.id, k.nomor_polisi, k.merk, p.status " +
+                        "FROM kendaraan k " +
+                        "JOIN pajak p ON k.id = p.kendaraan_id " +
+                        "WHERE p.status = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setString(1, status.replace(" ", "_").toUpperCase()); // Ubah "SUDAH BAYAR" menjadi "SUDAH_BAYAR"
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("nomor_polisi"),
+                        rs.getString("merk"),
+                        rs.getString("status")
+                    });
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Gagal memfilter data: " + e.getMessage(), 
+                                        "Error", JOptionPane.ERROR_MESSAGE);
         }
         return model;
     }
