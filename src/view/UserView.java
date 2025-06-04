@@ -38,16 +38,26 @@ public class UserView extends JFrame {
     }
 
     private void handleLogin() {
-        String nik = nikField.getText();
-        String password = new String(passwordField.getPassword());
+    String nik = nikField.getText();
+    String password = new String(passwordField.getPassword());
 
-        User user = controller.login(nik, password);
-        if (user != null) {
-            JOptionPane.showMessageDialog(this, "Selamat datang, " + user.getNama());
-            // TODO: Buka dashboard sesuai role
+    User user = controller.login(nik, password);
+    if (user != null) {
+        JOptionPane.showMessageDialog(this, "Selamat datang, " + user.getNama());
+        
+        // Pengecekan role
+        if ("admin".equalsIgnoreCase(user.getRole())) {
+            new AdminDashboard().setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(this, "NIK atau password salah!");
+            // Jika ada dashboard lain, misalnya untuk user biasa
+            new PembayarDashboard().setVisible(true);
         }
+
+        // Menutup form login
+        dispose();
+    } else {
+        JOptionPane.showMessageDialog(this, "NIK atau password salah!");
+    }
     }
 
 }
