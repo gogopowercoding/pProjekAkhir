@@ -2,14 +2,19 @@ package view;
 
 import controller.KendaraanControllerTambah;
 import model.KendaraanTambah;
+import model.KoneksidB;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class TambahKendaraanForm extends JFrame {
     private int userId;
-    private JTextField nomorPolisiField, merkField, jenisField, tahunField, hargaField;
-    private JComboBox<String> ccComboBox;
+    private JTextField nomorPolisiField, merkField, tahunField, hargaField;
+    private JComboBox<String> jenisComboBox, ccComboBox;
     private KendaraanControllerTambah controller = new KendaraanControllerTambah();
 
     public TambahKendaraanForm(int userId) {
@@ -49,8 +54,8 @@ public class TambahKendaraanForm extends JFrame {
 
         // Jenis
         panel.add(new JLabel("Jenis:"), createGbc(0, row));
-        jenisField = new JTextField(15);
-        panel.add(jenisField, createGbc(1, row++));
+        jenisComboBox = new JComboBox<>(new String[]{"Sepeda Motor", "Mobil", "Truk"});
+        panel.add(jenisComboBox, createGbc(1, row++));
 
         // Tahun
         panel.add(new JLabel("Tahun:"), createGbc(0, row));
@@ -94,47 +99,74 @@ public class TambahKendaraanForm extends JFrame {
     }
 
     private void simpanKendaraan() {
-        try {
-            String nomorPol = nomorPolisiField.getText().trim();
-            String merk = merkField.getText().trim();
-            String jenis = jenisField.getText().trim();
-            String tahunStr = tahunField.getText().trim();
-            String hargaStr = hargaField.getText().trim();
+    try {
+        String nomorPol = nomorPolisiField.getText().trim();
+        String merk = merkField.getText().trim();
+        String jenis = (String) jenisComboBox.getSelectedItem();
+        String tahunStr = tahunField.getText().trim();
+        String hargaStr = hargaField.getText().trim();
 
-            if (nomorPol.isEmpty() || merk.isEmpty() || jenis.isEmpty() || tahunStr.isEmpty() || hargaStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Semua field harus diisi!");
-                return;
-            }
+        if (nomorPol.isEmpty() || merk.isEmpty() || jenis == null || tahunStr.isEmpty() || hargaStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Semua field harus diisi!", 
+                                          "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-            int tahun = Integer.parseInt(tahunStr);
-            double harga = Double.parseDouble(hargaStr);
+        int tahun = Integer.parseInt(tahunStr);
+        double harga = Double.parseDouble(hargaStr);
 
-            KendaraanTambah kendaraan = new KendaraanTambah(
-                userId, nomorPol, merk, jenis, tahun, harga,
-                ccComboBox.getSelectedItem().toString()
-            );
+        // Validasi user_id
+        if (!isUserIdValid(userId)) {
+            JOptionPane.showMessageDialog(this, "User ID tidak valid! Harus sesuai dengan data pengguna di database.", 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-            boolean success = controller.tambahKendaraan(kendaraan); // perbaikan nama metode
+        KendaraanTambah kendaraan = new KendaraanTambah(
+            userId, nomorPol, merk, jenis, tahun, harga,
+            ccComboBox.getSelectedItem().toString()
+        );
 
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Data kendaraan berhasil disimpan!");
-                clearFields();
-            } else {
-                JOptionPane.showMessageDialog(this, "Gagal menyimpan data kendaraan.");
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Tahun dan Harga harus berupa angka!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage());
+        boolean success = controller.tambahKendaraan(kendaraan);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Data kendaraan berhasil disimpan!", 
+                                          "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            clearFields();
+        } else {
+            JOptionPane.showMessageDialog(this, "Gagal menyimpan data kendaraan.", 
+                                          "Gagal", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (NumberFormatException e) { // Perbaikan di sini
+        JOptionPane.showMessageDialog(this, "Tahun dan Harga harus berupa angka!", 
+                                      "Peringatan", JOptionPane.WARNING_MESSAGE);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), 
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    private boolean isUserIdValid(int userId) {
+        try (Connection conn = KoneksidB.getKoneksi()) {
+            String sql = "SELECT id FROM users WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next(); // Mengembalikan true jika user_id ditemukan
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error validating user ID: " + e.getMessage(), 
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 
     private void clearFields() {
         nomorPolisiField.setText("");
         merkField.setText("");
-        jenisField.setText("");
         tahunField.setText("");
         hargaField.setText("");
+        jenisComboBox.setSelectedIndex(0);
         ccComboBox.setSelectedIndex(0);
     }
 

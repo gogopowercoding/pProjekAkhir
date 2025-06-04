@@ -65,7 +65,8 @@ public class AdminDashboard extends JFrame {
 
         private void openTambahKendaraan() {
             try {
-                TambahKendaraanForm form = new TambahKendaraanForm(0); // 0 untuk admin
+                int adminUserId = 1; // Gunakan user_id admin yang valid
+                TambahKendaraanForm form = new TambahKendaraanForm(adminUserId);
                 form.setVisible(true);
                 form.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
@@ -82,9 +83,10 @@ public class AdminDashboard extends JFrame {
             }
         }
 
-        private void openEditKendaraan() {
+    private void openEditKendaraan() {
             try {
-                EditKendaraanForm form = new EditKendaraanForm(0); // 0 untuk admin
+                int adminUserId = 1; // Gunakan user_id admin yang valid (sesuai dengan data di tabel users)
+                EditKendaraanForm form = new EditKendaraanForm(adminUserId);
                 form.setVisible(true);
                 form.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override

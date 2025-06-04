@@ -69,17 +69,20 @@ public class EditKendaraanDetailForm extends JFrame {
     private void loadKendaraanDetail() {
         try {
             Object[] kendaraan = controller.getKendaraanDetail(kendaraanId, userId);
-              if (kendaraan != null) {
-                nomorPolisiField.setText(kendaraan[0].toString());
-                merkField.setText(kendaraan[1].toString());
-                jenisField.setText(kendaraan[2].toString());
-                tahunField.setText(kendaraan[3].toString());
-                hargaField.setText(kendaraan[4].toString());
-                ccComboBox.setSelectedItem(kendaraan[5].toString());
+            if (kendaraan == null) {
+                JOptionPane.showMessageDialog(this, "Data kendaraan tidak ditemukan untuk kendaraan ID: " + kendaraanId + " dan user ID: " + userId,
+                                              "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-
+            nomorPolisiField.setText(kendaraan[0] != null ? kendaraan[0].toString() : "");
+            merkField.setText(kendaraan[1] != null ? kendaraan[1].toString() : "");
+            jenisField.setText(kendaraan[2] != null ? kendaraan[2].toString() : "");
+            tahunField.setText(kendaraan[3] != null ? kendaraan[3].toString() : "");
+            hargaField.setText(kendaraan[4] != null ? kendaraan[4].toString() : "");
+            ccComboBox.setSelectedItem(kendaraan[5] != null ? kendaraan[5].toString() : "50-250");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error memuat detail kendaraan: " + e.getMessage(),
+                                          "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -99,7 +102,8 @@ public class EditKendaraanDetailForm extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Gagal update kendaraan.");
             }
-
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Tahun dan Harga harus berupa angka!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error update: " + e.getMessage());
         }

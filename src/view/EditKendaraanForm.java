@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.sql.SQLException; // Tambahkan impor ini
 
 public class EditKendaraanForm extends JFrame {
     private int userId;
@@ -57,11 +58,19 @@ public class EditKendaraanForm extends JFrame {
         try {
             tableModel.setRowCount(0);
             List<Object[]> kendaraanList = controller.getAllKendaraan(userId);
+            if (kendaraanList.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tidak ada data kendaraan untuk user ID: " + userId,
+                                              "Informasi", JOptionPane.INFORMATION_MESSAGE);
+            }
             for (Object[] row : kendaraanList) {
                 tableModel.addRow(row);
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal load data kendaraan: " + e.getMessage(),
+                                          "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Gagal load data kendaraan: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan tidak terduga: " + e.getMessage(),
+                                          "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
