@@ -5,7 +5,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import java.sql.SQLException; // Tambahkan impor ini
+import java.sql.SQLException;
 
 public class EditKendaraanForm extends JFrame {
     private int userId;
@@ -96,12 +96,17 @@ public class EditKendaraanForm extends JFrame {
         int confirm = JOptionPane.showConfirmDialog(this, "Yakin ingin menghapus kendaraan ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = controller.delete(kendaraanId, userId);
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Kendaraan berhasil dihapus!");
-                loadKendaraanData();
-            } else {
-                JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan.");
+            try {
+                boolean success = controller.delete(kendaraanId, userId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Kendaraan berhasil dihapus!");
+                    loadKendaraanData();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan.");
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan: " + e.getMessage(),
+                                              "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
