@@ -1,12 +1,12 @@
 package view;
 
+import controller.RiwayatPembayaranController;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 public class PembayarDashboard extends JFrame {
-    private int userId; // ID user yang login
+    private int userId;
 
     public PembayarDashboard() {
         this.userId = userId;
@@ -21,17 +21,14 @@ public class PembayarDashboard extends JFrame {
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Header
         JLabel header = new JLabel("Selamat datang di Dashboard Pembayar", SwingConstants.CENTER);
         header.setFont(new Font("Arial", Font.BOLD, 16));
         header.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         mainPanel.add(header, BorderLayout.NORTH);
 
-        // Menu Panel
-        JPanel menuPanel = new JPanel(new GridLayout(2, 1, 15, 15)); // 2 baris 1 kolom
+        JPanel menuPanel = new JPanel(new GridLayout(3, 1, 15, 15));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 50, 50));
 
-        // Buttons
         JButton bayarBtn = new JButton("Bayar Pajak");
         JButton riwayatBtn = new JButton("Riwayat Pembayaran");
         JButton logoutBtn = new JButton("Logout");
@@ -41,12 +38,10 @@ public class PembayarDashboard extends JFrame {
         riwayatBtn.setFont(buttonFont);
         logoutBtn.setFont(buttonFont);
 
-        // ActionListeners
         bayarBtn.addActionListener(e -> openBayarPajak());
         riwayatBtn.addActionListener(e -> openRiwayatPembayaran());
         logoutBtn.addActionListener(e -> logout());
 
-        // Tambahkan tombol ke panel
         menuPanel.add(bayarBtn);
         menuPanel.add(riwayatBtn);
         menuPanel.add(logoutBtn);
@@ -67,8 +62,7 @@ public class PembayarDashboard extends JFrame {
 
     private void openRiwayatPembayaran() {
         try {
-            RiwayatPembayaranView riwayatForm = new RiwayatPembayaranView();
-            riwayatForm.setVisible(true);
+            new RiwayatPembayaranController(userId);
             this.dispose();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error membuka riwayat pembayaran: " + e.getMessage());

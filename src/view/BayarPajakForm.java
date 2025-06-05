@@ -40,7 +40,8 @@ public class BayarPajakForm extends JFrame {
         headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
-        String[] columnNames = {"ID Pajak", "Nomor Polisi", "Merk", "Jumlah Pajak", "Denda", "Total Bayar", "Jatuh Tempo"};
+        // Sesuaikan kolom dengan data yang dikembalikan oleh BayarPajakController
+        String[] columnNames = {"ID Pajak", "ID Kendaraan", "Nomor Polisi", "Jumlah Pajak", "Denda", "Total Bayar", "Jatuh Tempo"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -82,7 +83,7 @@ public class BayarPajakForm extends JFrame {
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
         bottomPanel.add(buttonPanel, gbc);
 
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH); // Perbaikan: Gunakan bottomPanel
         add(mainPanel);
     }
 
@@ -94,11 +95,13 @@ public class BayarPajakForm extends JFrame {
 
             for (Object[] row : data) {
                 tableModel.addRow(new Object[]{
-                    row[0], row[1], row[2],
-                    currencyFormat.format((double) row[3]),
-                    currencyFormat.format((double) row[4]),
-                    currencyFormat.format((double) row[5]),
-                    row[6]
+                    row[0], // ID Pajak
+                    row[1], // ID Kendaraan
+                    row[2], // Nomor Polisi
+                    currencyFormat.format((double) row[3]), // Jumlah Pajak
+                    currencyFormat.format((double) row[4]), // Denda
+                    currencyFormat.format((double) row[5]), // Total Bayar
+                    row[6]  // Jatuh Tempo
                 });
             }
 
@@ -139,10 +142,10 @@ public class BayarPajakForm extends JFrame {
 
     private void kembaliToDashboard() {
         try {
-            new PembayarDashboard().setVisible(true);
+            new PembayarDashboard().setVisible(true); // Gunakan userId
             this.dispose();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: Tidak dapat membuka PembayarDashboard. Pastikan kelas tersedia.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error: Tidak dapat membuka PembayarDashboard. " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

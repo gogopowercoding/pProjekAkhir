@@ -3,9 +3,10 @@ package view;
 import controller.KendaraanController;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.util.List;
-import java.sql.SQLException;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.util.List; // Impor eksplisit java.util.List
 
 public class EditKendaraanForm extends JFrame {
     private int userId;
@@ -31,7 +32,7 @@ public class EditKendaraanForm extends JFrame {
         headerLabel.setFont(new Font("Arial", Font.BOLD, 16));
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
-        String[] columnNames = {"ID", "Nomor Polisi", "Merk", "Jenis", "Tahun", "Harga", "CC"};
+        String[] columnNames = {"ID", "Nomor Polisi", "Merk", "Jenis", "Tahun", "Harga", "CC", "Status Pajak"};
         tableModel = new DefaultTableModel(columnNames, 0);
         kendaraanTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(kendaraanTable);
@@ -57,19 +58,25 @@ public class EditKendaraanForm extends JFrame {
     private void loadKendaraanData() {
         try {
             tableModel.setRowCount(0);
-            List<Object[]> kendaraanList = controller.getAllKendaraan(userId);
+            List<Object[]> kendaraanList = controller.getAllKendaraan(userId, "SEMUA"); // Gunakan filter "SEMUA"
             if (kendaraanList.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Tidak ada data kendaraan untuk user ID: " + userId,
                                               "Informasi", JOptionPane.INFORMATION_MESSAGE);
             }
             for (Object[] row : kendaraanList) {
-                tableModel.addRow(row);
+                tableModel.addRow(new Object[]{
+                    row[0], // ID
+                    row[1], // Nomor Polisi
+                    row[2], // Merk
+                    row[3], // Jenis
+                    row[4], // Tahun
+                    row[5], // Harga
+                    row[6], // CC
+                    row[7] != null ? row[7].toString() : "BELUM BAYAR" // Status Pajak
+                });
             }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Gagal load data kendaraan: " + e.getMessage(),
-                                          "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Terjadi kesalahan tidak terduga: " + e.getMessage(),
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(),
                                           "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -87,29 +94,37 @@ public class EditKendaraanForm extends JFrame {
 
     private void hapusKendaraan() {
         int selectedRow = kendaraanTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Pilih kendaraan yang akan dihapus!");
-            return;
-        }
-
-        int kendaraanId = (int) tableModel.getValueAt(selectedRow, 0);
-        int confirm = JOptionPane.showConfirmDialog(this, "Yakin ingin menghapus kendaraan ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                boolean success = controller.delete(kendaraanId, userId);
-                if (success) {
-                    JOptionPane.showMessageDialog(this, "Kendaraan berhasil dihapus!");
-                    loadKendaraanData();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan.");
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan: " + e.getMessage(),
-                                              "Error", JOptionPane.ERROR_MESSAGE);
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Pilih kendaraan yang akan dihapus!");
+                return;
             }
+
+            int kendaraanId = (int) tableModel.getValueAt(selectedRow, 0);
+            int confirm = JOptionPane.showConfirmDialog(this, "Yakin ingin menghapus kendaraan ini?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    // Hapus entri pajak terkait terlebih dahulu
+                    KendaraanController controller = new KendaraanController();
+                    boolean pajakDeleted = controller.deletePajakByKendaraanId(kendaraanId, userId);
+                    if (!pajakDeleted) {
+                        JOptionPane.showMessageDialog(this, "Gagal menghapus entri pajak terkait.");
+                        return;
+                    }
+                    // Hapus kendaraan
+                    boolean success = controller.delete(kendaraanId, userId);
+                    if (success) {
+                        JOptionPane.showMessageDialog(this, "Kendaraan berhasil dihapus!");
+                        loadKendaraanData();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan.");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Gagal menghapus kendaraan: " + e.getMessage(),
+                                                  "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+}
 
     private void kembaliToDashboard() {
         new AdminDashboard().setVisible(true);

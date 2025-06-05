@@ -18,25 +18,28 @@ public class RiwayatPembayaranModel {
     }
 
     public List<Riwayat> getRiwayatByUser(int userId) throws SQLException {
-        List<Riwayat> riwayatList = new ArrayList<>();
-        Connection conn = KoneksidB.getKoneksi();
-        String sql = "SELECT tanggal_bayar, jumlah_bayar, keterangan FROM pembayaran WHERE user_id = ? ORDER BY tanggal_bayar DESC";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setInt(1, userId);
-        ResultSet rs = pstmt.executeQuery();
-
-        while (rs.next()) {
-            riwayatList.add(new Riwayat(
-                rs.getString("tanggal_bayar"),
-                rs.getDouble("jumlah_bayar"),
-                rs.getString("keterangan")
-            ));
+        List<Riwayat> list = new ArrayList<>();
+        try (Connection conn = KoneksidB.getKoneksi();
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT p.tanggal_bayar, p.jumlah_bayar, p.keterangan " +
+                     "FROM pembayaran p " +
+                     "JOIN pajak pj ON p.pajak_id = pj.id " +
+                     "JOIN kendaraan k ON pj.kendaraan_id = k.id " +
+                     "WHERE k.user_id = ?")) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String tanggal = rs.getString("tanggal_bayar");
+                    double jumlah = rs.getDouble("jumlah_bayar");
+                    String keterangan = rs.getString("keterangan");
+                    if (keterangan == null) keterangan = "";
+                    list.add(new Riwayat(tanggal, jumlah, keterangan));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("SQL Error in getRiwayatByUser untuk userId " + userId + " pada " + new java.util.Date() + ": " + e.getMessage());
+            throw e;
         }
-
-        rs.close();
-        pstmt.close();
-        conn.close();
-
-        return riwayatList;
+        return list;
     }
 }

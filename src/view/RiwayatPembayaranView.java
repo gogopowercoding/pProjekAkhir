@@ -29,19 +29,9 @@ public class RiwayatPembayaranView extends JFrame {
         kembaliBtn = new JButton("Kembali");
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(kembaliBtn);
-        
-        kembaliBtn.addActionListener(e -> kembaliToDashboard());
+
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
-    }
-    
-    private void kembaliToDashboard() {
-        try {
-            new PembayarDashboard().setVisible(true);
-            this.dispose();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: Tidak dapat membuka PembayarDashboard. Pastikan kelas tersedia.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 }
