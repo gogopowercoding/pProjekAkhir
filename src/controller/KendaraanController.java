@@ -3,6 +3,8 @@ package controller;
 import model.KendaraanModel;
 import java.sql.SQLException;
 import java.util.List;
+import javax.swing.JOptionPane;
+import model.BayarPajakModel;
 
 public class KendaraanController {
     private KendaraanModel model;
@@ -11,22 +13,22 @@ public class KendaraanController {
         model = new KendaraanModel();
     }
 
-    public List<Object[]> getAllKendaraan(int userId) throws SQLException {
+    public List<Object[]> getAllKendaraan(int userId, String statusFilter) throws SQLException {
         try {
             List<Object[]> kendaraanList;
-            if (userId == 1) { // Admin (userId = 1) dapat melihat semua kendaraan
-                kendaraanList = model.getAllKendaraan();
+            if (userId == 1) { // Admin (userId = 1) dapat melihat semua kendaraan dengan filter status
+                kendaraanList = model.getKendaraanByStatus(statusFilter);
             } else {
-                kendaraanList = model.getKendaraanByUser(userId);
+                kendaraanList = model.getKendaraanByUser(userId); // Pengguna biasa hanya lihat kendaraan sendiri
             }
             if (kendaraanList.isEmpty()) {
-                System.out.println("No kendaraan data found for userId: " + userId + " at " + new java.util.Date());
+                System.out.println("No kendaraan data found for userId: " + userId + " with status: " + statusFilter + " at " + new java.util.Date());
             } else {
-                System.out.println("Retrieved " + kendaraanList.size() + " kendaraan records for userId: " + userId);
+                System.out.println("Retrieved " + kendaraanList.size() + " kendaraan records for userId: " + userId + " with status: " + statusFilter);
             }
             return kendaraanList;
         } catch (SQLException e) {
-            System.out.println("SQL Error in getAllKendaraan for userId " + userId + ": " + e.getMessage());
+            System.out.println("SQL Error in getAllKendaraan for userId " + userId + " with status " + statusFilter + ": " + e.getMessage());
             throw e;
         }
     }
@@ -69,8 +71,27 @@ public class KendaraanController {
 
     public boolean delete(int kendaraanId, int userId) throws SQLException {
         try {
+            // Cek apakah ada entri pajak terkait
+            List<Object[]> pajakList = new BayarPajakModel().getPajakBelumBayarByKendaraanId(kendaraanId);
+            if (!pajakList.isEmpty()) {
+                int confirm = JOptionPane.showConfirmDialog(null,
+                    "Kendaraan ini memiliki " + pajakList.size() + " entri pajak yang belum dibayar. Hapus juga entri pajak?",
+                    "Konfirmasi Penghapusan",
+                    JOptionPane.YES_NO_OPTION);
+                if (confirm != JOptionPane.YES_OPTION) {
+                    return false;
+                }
+            }
+
+            // Hapus entri pajak terkait
+            boolean pajakDeleted = deletePajakByKendaraanId(kendaraanId, userId);
+            if (!pajakDeleted && userId != 1) {
+                System.out.println("No pajak entries to delete for kendaraanId: " + kendaraanId + ", userId: " + userId);
+            }
+
+            // Hapus kendaraan
             boolean result;
-            if (userId == 1) { // Admin dapat menghapus semua kendaraan
+            if (userId == 1) {
                 result = model.deleteKendaraanAdmin(kendaraanId);
             } else {
                 result = model.deleteKendaraan(kendaraanId, userId);
@@ -79,6 +100,22 @@ public class KendaraanController {
             return result;
         } catch (SQLException e) {
             System.out.println("SQL Error in delete for kendaraanId " + kendaraanId + ": " + e.getMessage());
+            throw e;
+        }
+}
+
+    public boolean deletePajakByKendaraanId(int kendaraanId, int userId) throws SQLException {
+        try {
+            boolean result;
+            if (userId == 1) {
+                result = model.deletePajakByKendaraanIdAdmin(kendaraanId);
+            } else {
+                result = model.deletePajakByKendaraanId(kendaraanId, userId);
+            }
+            System.out.println("Delete pajak result for kendaraanId " + kendaraanId + ": " + result);
+            return result;
+        } catch (SQLException e) {
+            System.out.println("SQL Error in deletePajakByKendaraanId for kendaraanId " + kendaraanId + ": " + e.getMessage());
             throw e;
         }
     }
